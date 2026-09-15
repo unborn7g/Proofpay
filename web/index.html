@@ -645,7 +645,8 @@
 <script>
 "use strict";
 const $ = s => document.querySelector(s);
-const sleep = ms => new Promise(r => setTimeout(r, ms));
+let PACE = 1;                 // showcase pacing multiplier (voiceover ≈66s fits full run)
+const sleep = ms => new Promise(r => setTimeout(r, ms * PACE));
 const rnd = (n=4) => Array.from({length:n},()=>"0123456789abcdef"[Math.floor(Math.random()*16)]).join("");
 const addr = () => "0x" + rnd(4) + "…" + rnd(4);
 
@@ -901,10 +902,13 @@ function cap(text, ms=2000){
   $("#capText").textContent = text;
   w.classList.add("on");
   clearTimeout(capTimer);
-  capTimer = setTimeout(()=>w.classList.remove("on"), ms);
+  capTimer = setTimeout(()=>w.classList.remove("on"), ms * PACE);
 }
 async function showcase(){
   $("#btnShow").disabled = true;
+  PACE = 1.33;                // slower cinematic pacing so the ~66s voiceover fits the run
+  const vo = new Audio("narration.mp3");   // synced voiceover — recorded audio picks it up
+  vo.play().catch(()=>{});
   window.scrollTo({top:0, behavior:"smooth"});
   cap("PROOFPAY · ESCROW FOR THE AGENTIC ECONOMY",2300);
   await sleep(2500);
@@ -919,6 +923,8 @@ async function showcase(){
   await sleep(2900);
   cap("PROOFPAY · BUILT ON GENLAYER · GITHUB.COM/UNBORN7G/PROOFPAY",4200);
   await sleep(4400);
+  vo.pause();                 // visuals and voiceover land together (~66s)
+  PACE = 1;
   $("#btnShow").disabled = false;
 }
 $("#btnShow").addEventListener("click", showcase);
