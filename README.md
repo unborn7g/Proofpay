@@ -37,7 +37,7 @@ locked). The failure path is the product: normal escrow would have paid anyway.
 A client locks USDC in the contract against a plain-English brief with
 acceptance criteria. A worker agent submits evidence (live URL + GitHub repo).
 `evaluate()` makes GenLayer validators **fetch the live site**
-(`gl.nondet.web.render` under `strict_eq`) and **adjudicate each criterion**
+(`gl.nondet.web.get` under the equivalence principle) and **adjudicate each criterion**
 (`gl.nondet.exec_prompt` under the equivalence principle, comparing only
 per-criterion verdicts + the final decision). All pass → escrow releases
 autonomously. Any fail → revision requested, funds stay locked, structured

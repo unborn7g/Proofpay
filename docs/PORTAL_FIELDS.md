@@ -9,10 +9,9 @@ Deadline: **17 Sept 2026 · 15:30 UTC** · track: Agentic Commerce Infrastructur
 - **Description (972/1000 chars):**
   ProofPay is a programmable escrow layer for the agentic economy. A person or AI agent hires another agent for digital work - a website, code, research, data analysis, a campaign - and locks payment against a plain-English brief with acceptance criteria. When the worker submits evidence (live URL, GitHub repo, report, dataset), GenLayer validators independently evaluate whether the delivered outcome actually satisfies the brief - not merely whether a file was uploaded. If it passes, funds release autonomously; if it fails, the contract requests revision and the money stays locked. Today escrow can prove work was submitted; ProofPay proves it satisfies the agreement. The contract fetches live web evidence and adjudicates each criterion with LLMs under GenLayer's equivalence principle, turning subjective judgment into on-chain consensus. The MVP ships the website template as the showcase flow; the same rubric engine extends to research, data and marketing work.
 - **Logo:** `assets/logo.png`
-- **Public GitHub repo:** https://github.com/unborn7g/proofpay (create repo named `proofpay`, upload this folder)
-- **Live demo/website URL (required):** ____________________ (host `web/` on GitHub Pages / Netlify / Vercel)
-- **Private judges' note (≤500 chars):**
-  Live contract on GenLayer studionet: 0xf668bD0594e107FdF6972295aaC54372CD689F1e (deploy tx 0x963b0a3e…effa5c); create_task/accept_task/evaluate executed via CLI, consensus ACCEPTED. Expected: coffee-shop evidence meeting all criteria => VERIFIED + escrow released; variant missing contact form => REVISION, funds locked. Web evidence via gl.nondet.web.render (strict_eq); criteria adjudicated via gl.nondet.exec_prompt under equivalence principle (verdicts compared for consensus).
+- **Public GitHub repo:** https://github.com/unborn7g/Proofpay (already uploaded ✔)
+- **Live demo/website URL (required):** https://unborn7g.github.io/Proofpay/ (redirects to the demo; evidence site: /bluebird/)
+- **Private judges' note (≤500 chars):** (superseded — use the FINAL STRINGS section at the bottom of this file)
 
 ## How-to steps (structured, numbered — paste into portal)
 
@@ -22,3 +21,39 @@ Deadline: **17 Sept 2026 · 15:30 UTC** · track: Agentic Commerce Infrastructur
 4. `genlayer write <ADDR> create_task --args "One-page dark-theme coffee shop site with menu, contact form, mobile-friendly, public repo" '[{"id":"live","label":"Live deployed website"},{"id":"resp","label":"Mobile responsive"},{"id":"menu","label":"Menu section"},{"id":"contact","label":"Contact form"},{"id":"dark","label":"Dark theme"},{"id":"repo","label":"GitHub source repo"}]' 20`
 5. `genlayer write <ADDR> accept_task --args 1` then `genlayer write <ADDR> submit_evidence --args 1 '{"url":"<live-url>","repo":"<repo-url>"}'`
 6. `genlayer write <ADDR> evaluate --args 1` → returns per-criterion verdicts; `genlayer call <ADDR> get_task --args 1` shows status VERIFIED or REVISION. Paste the address into the site's Live mode to watch it on-chain.
+
+---
+
+## FINAL STRINGS (Sep 15 — after Studio Next lifecycles landed)
+
+### Field 06 — Studio Next contract link (paste exactly)
+https://explorer-studio-dev.genlayer.com/address/0xE4d04f3784D20206f72EAF61999aDa825153825B
+
+### Expected verification outcome (499 chars — paste exactly)
+(1) https://unborn7g.github.io/Proofpay/ - live demo, success + failure paths, no wallet; (2) GitHub repo with the Intelligent Contract + evidence pages; (3) Studio Next explorer: contract 0xE4d04f3784D20206f72EAF61999aDa825153825B, 9 FINALIZED txs = deploy + two full lifecycles (create_task, accept_task, submit_evidence, evaluate) vs live URLs. Task 1: validators rendered the page, 6/6 passed, VERIFIED, 20 USDC released. Task 2: no contact form - 5/6, REVISION, funds locked, feedback on-chain.
+
+### Demo video field
+After uploading proofpay-demo.mp4 to YouTube, paste that YouTube URL here.
+
+### YouTube title (paste exactly)
+ProofPay — Escrow That Proves Satisfaction, Not Submission (GenLayer Agent Tank)
+
+### YouTube description (paste exactly)
+ProofPay is a programmable escrow layer for the agentic economy: a client locks 20 USDC against a plain-English brief, a worker agent delivers the work, and GenLayer validators open the live evidence and judge every criterion against the brief. All pass → payment releases itself. Any fail → revision requested, funds stay locked, structured feedback returned. Escrow proves submission. ProofPay proves satisfaction.
+
+In this demo:
+0:00 The brief + 20 USDC locked in escrow
+0:12 Worker agent delivers evidence (live URL + GitHub repo)
+0:25 Validators judge the outcome → 6/6 VERIFIED, paid on proof
+0:38 Failure path: missing contact form → REVISION REQUESTED, funds stay locked
+
+Try it live: https://unborn7g.github.io/Proofpay/
+Contract on Studio Next (chain 61997): https://explorer-studio-dev.genlayer.com/address/0xE4d04f3784D20206f72EAF61999aDa825153825B
+Source: https://github.com/unborn7g/Proofpay
+
+Built for the GenLayer Agent Tank hackathon — track: Agentic Commerce Infrastructure.
+
+#GenLayer #ProofPay #AgenticCommerce #Escrow #AIagents #SmartContracts
+
+### YouTube tags
+GenLayer, ProofPay, agentic commerce, AI agents, escrow, intelligent contracts, web3, hackathon

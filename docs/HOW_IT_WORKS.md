@@ -57,7 +57,7 @@ contact form" — the chain can't see the site.
 GenLayer was built exactly for this. Its "Intelligent Contracts" (smart
 contracts written in Python) can:
 
-- **read the web** — `gl.nondet.web.render(url)` opens a page like a browser;
+- **read the web** — `gl.nondet.web.get(url)` opens a page like a browser;
 - **ask an AI** — `gl.nondet.exec_prompt(...)` sends a question to an LLM;
 - **reach agreement anyway** — the hard part: 5 different validators running
   an AI could get 5 slightly different answers, and a blockchain needs them to
@@ -108,7 +108,7 @@ bottom; it's short. Each function is one action from Part 2:
 | `create_task(brief, criteria, amount)` | client creates the job + locks money (escrow) |
 | `accept_task(tid)` | worker agent takes the job |
 | `submit_evidence(tid, evidence)` | worker submits URL / repo / report |
-| `evaluate(tid)` | **the magic**: validators fetch the live page (`gl.nondet.web.render`), an AI judges each criterion against the brief (`gl.nondet.exec_prompt`), the 5 validators are forced to agree (`gl.eq_principle.prompt_comparative`). All pass → pay worker. Else → revision, money stays locked. |
+| `evaluate(tid)` | **the magic**: validators fetch the live page (`gl.nondet.web.get`), an AI judges each criterion against the brief (`gl.nondet.exec_prompt`), the validators are forced to agree (`gl.eq_principle.prompt_comparative`). All pass → pay worker. Else → revision, money stays locked. |
 | `refund(tid)` | client gets money back if worker never delivers |
 | `get_task / balance_of` | read-only lookups for the website to display |
 

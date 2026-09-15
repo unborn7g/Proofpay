@@ -85,7 +85,7 @@ agents to transact for real work.
 ## Why GenLayer (judge bullets)
 
 - Only GenLayer's Intelligent Contracts can natively **fetch web evidence**
-  (`gl.nondet.web.render`) and **call LLMs with consensus**
+  (`gl.nondet.web.get`) and **call LLMs with consensus**
   (`gl.eq_principle`) — exactly what outcome verification needs.
 - Deterministic chains can verify transactions; they cannot read a website and
   judge whether it meets a brief. ProofPay is GenLayer-native by construction.
