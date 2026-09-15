@@ -639,6 +639,8 @@
   </div>
 </footer>
 
+<div class="cap-wrap" id="capWrap"><div class="cap" id="capText"></div></div>
+
 <!-- ================= JAVASCRIPT (simulation engine + live mode) ================= -->
 <script>
 "use strict";
@@ -667,7 +669,7 @@ const state = { running:false, runId:0, client:50, escrow:0, worker:0, t0:0 };
 
 /* ====== EDIT ME: paste your real links here (one place, everything updates) ====== */
 const CONFIG = {
-  github:   "https://github.com/unborn7g",   // your GitHub (footer link)
+  github:   "https://github.com/unborn7g/Proofpay",   // your GitHub (footer link)
   contract: "0xf668bD0594e107FdF6972295aaC54372CD689F1e",   // LIVE on GenLayer studionet ✔
   explorer: "https://explorer-studio.genlayer.com"
 };
@@ -747,6 +749,7 @@ async function run(scenario){
   const alive = () => id === state.runId;
 
   setStep(0,"active"); showPanel("brief");
+  cap("01 · THE BRIEF",1800);
   log("client drafts brief: “Bluebird Coffee landing page”");
   await sleep(900); if(!alive())return;
   log("template <b>website</b> · 6 outcome criteria · budget 20 USDC");
@@ -763,6 +766,7 @@ async function run(scenario){
   state.client = 30; state.escrow = 20; renderBalances();
   const es = $("#escrowState"); es.textContent = "LOCKED"; es.className = "badge lime";
   log("escrow locked: <b>20.00 USDC</b> · tx 0x" + rnd(8),"ok");
+  cap("02 · 20 USDC LOCKED IN ESCROW",2000);
   await sleep(700); if(!alive())return;
   $("#workerStatus").textContent = "applying…";
   log("worker applied: sitecrafter.agent (0x8b21…c4d0)");
@@ -772,6 +776,7 @@ async function run(scenario){
   await sleep(500); if(!alive())return;
 
   doneUpTo(2); setStep(2,"active"); showPanel("work");
+  cap("03 · WORKER DELIVERS EVIDENCE",2000);
   const lines = [
     "scaffolding project… done",
     "writing hero + copy… done",
@@ -800,6 +805,7 @@ async function run(scenario){
   await sleep(800); if(!alive())return;
 
   doneUpTo(3); setStep(3,"active"); showPanel("validation");
+  cap("04 · VALIDATORS JUDGE THE OUTCOME",2200);
   log("evidence hashed & submitted to GenLayer validator committee");
   await sleep(600); if(!alive())return;
   $("#validators").innerHTML = VALIDATORS.map(v => '<span class="vchip"> ' + v + '</span>').join("");
@@ -860,6 +866,7 @@ async function run(scenario){
       '<div class="fnode"><b>worker</b><span>0.00 USDC · feedback received</span></div>';
     log("REVISION REQUESTED · feedback: add contact form (name/email/submit)","bad");
     log("escrow remains locked · funds safe","info");
+    cap("05 · REVISION — FUNDS STAY LOCKED",2200);
     $("#btnResubmit").hidden = false;
   } else {
     state.escrow = 0; state.worker = 20; renderBalances();
@@ -877,6 +884,7 @@ async function run(scenario){
       '<div class="fnode glow"><b>worker</b><span>+20.00 USDC · tx 0x' + rnd(8) + '</span></div>';
     log("VERIFIED · 20.00 USDC released to sitecrafter.agent · tx 0x" + rnd(8),"ok");
     log("task #042 complete · demo finished","info");
+    cap("05 · VERIFIED — PAID ON PROOF",2200);
   }
   state.running = false;
   setButtons(false);
@@ -885,6 +893,35 @@ async function run(scenario){
 $("#btnSuccess").addEventListener("click", ()=>run("success"));
 $("#btnFail").addEventListener("click", ()=>run("fail"));
 $("#btnResubmit").addEventListener("click", ()=>run("success"));
+
+/* ---------- showcase mode: one-click cinematic demo ---------- */
+let capTimer = null;
+function cap(text, ms=2000){
+  const w = $("#capWrap");
+  $("#capText").textContent = text;
+  w.classList.add("on");
+  clearTimeout(capTimer);
+  capTimer = setTimeout(()=>w.classList.remove("on"), ms);
+}
+async function showcase(){
+  $("#btnShow").disabled = true;
+  window.scrollTo({top:0, behavior:"smooth"});
+  cap("PROOFPAY · ESCROW FOR THE AGENTIC ECONOMY",2300);
+  await sleep(2500);
+  document.getElementById("demo").scrollIntoView({behavior:"smooth"});
+  await sleep(900);
+  await run("success");
+  cap("SAME BRIEF — ONE MISSING FORM",2300);
+  await sleep(2500);
+  await run("fail");
+  document.getElementById("live").scrollIntoView({behavior:"smooth"});
+  cap("SUBMISSION ≠ SATISFACTION",2600);
+  await sleep(2900);
+  cap("PROOFPAY · BUILT ON GENLAYER · GITHUB.COM/UNBORN7G/PROOFPAY",4200);
+  await sleep(4400);
+  $("#btnShow").disabled = false;
+}
+$("#btnShow").addEventListener("click", showcase);
 
 /* ---------- live mode ---------- */
 function renderLive(){
