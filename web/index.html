@@ -1,0 +1,944 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ProofPay — Outcome-based escrow for the agentic economy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#04070c; --panel:#0b121c; --panel2:#0e1724; --line:rgba(255,255,255,.07);
+    --text:#eef5fb; --muted:#93a7ba; --dim:#5c7186;
+    --lime:#c6ff00; --cyan:#3fd4ff; --red:#ff5063; --amber:#ffc53d;
+    --disp:'Anton','Arial Black',Arial,sans-serif;
+    --body:'Space Grotesk',Arial,Helvetica,sans-serif;
+    --mono:'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace;
+    --r:20px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  [hidden]{display:none!important}
+  html{scroll-behavior:smooth}
+  body{
+    background:
+      radial-gradient(1100px 520px at 88% -12%, rgba(63,212,255,.10), transparent 60%),
+      radial-gradient(900px 480px at -8% 4%, rgba(198,255,0,.08), transparent 60%),
+      radial-gradient(1200px 700px at 50% 118%, rgba(63,212,255,.05), transparent 60%),
+      var(--bg);
+    color:var(--text); font-family:var(--body); overflow-x:hidden;
+  }
+  body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+    background:
+      linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px);
+    background-size:56px 56px;
+    mask-image:radial-gradient(ellipse 90% 70% at 50% 0%, #000 0%, transparent 75%);
+    -webkit-mask-image:radial-gradient(ellipse 90% 70% at 50% 0%, #000 0%, transparent 75%);
+  }
+  /* ============ light theme ============ */
+  [data-theme="light"]{
+    --bg:#f4f6f8; --panel:#ffffff; --panel2:#edf1f5; --line:rgba(13,26,38,.10);
+    --text:#0c151d; --muted:#46586a; --dim:#7c8b99;
+    --lime:#7bc400; --cyan:#0090c9; --red:#e0304a; --amber:#b57700;
+  }
+  [data-theme="light"] body{background:
+    radial-gradient(1100px 520px at 88% -12%, rgba(0,144,201,.10), transparent 60%),
+    radial-gradient(900px 480px at -8% 4%, rgba(123,196,0,.14), transparent 60%),
+    var(--bg)}
+  [data-theme="light"] body::before{background:
+    linear-gradient(rgba(13,26,38,.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(13,26,38,.035) 1px, transparent 1px)}
+  [data-theme="light"] nav{background:rgba(255,255,255,.85)}
+  [data-theme="light"] .pill{background:rgba(13,26,38,.04)}
+  [data-theme="light"] .viz-card{background:linear-gradient(160deg,#ffffff,#eef3f8);
+    box-shadow:0 30px 80px rgba(13,26,38,.14)}
+  [data-theme="light"] .fchip{background:rgba(255,255,255,.92)}
+  [data-theme="light"] .stats{background:rgba(13,26,38,.03)}
+  [data-theme="light"] .console-bar{background:rgba(13,26,38,.03)}
+  [data-theme="light"] .console{box-shadow:0 40px 120px rgba(13,26,38,.16)}
+  [data-theme="light"] footer{background:rgba(13,26,38,.03)}
+  [data-theme="light"] .ccard.new{box-shadow:0 10px 60px rgba(123,196,0,.18)}
+  [data-theme="light"] .viz svg text[fill="#eef5fb"]{fill:var(--text)}
+  [data-theme="light"] .viz svg text[fill="#5c7186"]{fill:var(--dim)}
+  [data-theme="light"] .viz svg text[fill="#c6ff00"]{fill:var(--lime)}
+  [data-theme="light"] .viz svg circle[stroke="#3fd4ff"]{stroke:var(--cyan)}
+  [data-theme="light"] .viz svg circle[stroke="#c6ff00"]{stroke:var(--lime)}
+  [data-theme="light"] .wire{stroke:var(--cyan)}
+  [data-theme="light"] .wire.l{stroke:var(--lime)}
+
+  ::selection{background:var(--lime);color:#041018}
+  .wrap{max-width:1200px;margin:0 auto;padding:0 24px;position:relative;z-index:1}
+  .mono{font-family:var(--mono)}
+  .display{font-family:var(--disp);text-transform:uppercase;letter-spacing:.01em;font-weight:400}
+
+  /* ============ nav ============ */
+  nav{position:sticky;top:0;z-index:50;backdrop-filter:blur(14px);
+    background:rgba(4,7,12,.72);border-bottom:1px solid var(--line)}
+  .nav-in{display:flex;align-items:center;gap:26px;height:64px}
+  .brand{display:flex;align-items:center;gap:11px;margin-right:auto}
+  .brand svg{width:30px;height:30px}
+  .brand b{font-family:var(--disp);font-size:19px;letter-spacing:.04em}
+  .brand .tag{display:block;font-family:var(--mono);font-size:9px;color:var(--dim);letter-spacing:.14em;text-transform:uppercase}
+  nav a.nl{color:var(--muted);text-decoration:none;font-size:13px;font-weight:500;
+    transition:color .2s;position:relative}
+  nav a.nl::after{content:"";position:absolute;left:0;bottom:-4px;width:0;height:2px;
+    background:var(--lime);transition:width .25s ease}
+  nav a.nl:hover{color:var(--text)}
+  nav a.nl:hover::after{width:100%}
+  .pill{font-family:var(--mono);font-size:10px;color:var(--muted);border:1px solid var(--line);
+    border-radius:999px;padding:6px 12px;background:rgba(255,255,255,.03);white-space:nowrap}
+  .pill .dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--lime);
+    margin-right:6px;box-shadow:0 0 8px var(--lime)}
+  .pill b{color:var(--text)}
+  @media(max-width:900px){nav a.nl{display:none}}
+
+  /* ============ hero ============ */
+  .hero{padding:96px 0 64px;display:grid;grid-template-columns:1.05fr .95fr;gap:56px;align-items:center}
+  @media(max-width:980px){.hero{grid-template-columns:1fr;padding-top:56px}}
+  .eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.22em;color:var(--lime);
+    text-transform:uppercase;margin-bottom:22px;display:flex;align-items:center;gap:10px}
+  .eyebrow::before{content:"";width:26px;height:1px;background:var(--lime)}
+  h1.display{font-size:clamp(32px,4.2vw,58px);line-height:1.16;margin-bottom:24px}
+  .hl{display:inline-block;white-space:nowrap;background:var(--lime);color:#041018;
+    padding:.06em .18em;border-radius:6px}
+  h1 .hl{display:block;width:fit-content;white-space:normal;padding:.1em .22em;
+    border-radius:8px;margin-top:14px}
+  .hero p.sub{color:var(--muted);font-size:16px;line-height:1.65;max-width:560px;margin-bottom:14px}
+  .hero p.sub b{color:var(--text)}
+  .modelabel{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);margin:22px 0 10px}
+  .controls{display:flex;gap:12px;flex-wrap:wrap}
+  .btn{font-family:var(--mono);font-weight:700;font-size:12px;letter-spacing:.08em;text-transform:uppercase;
+    border-radius:12px;padding:14px 22px;cursor:pointer;border:1px solid transparent;
+    transition:transform .15s, box-shadow .2s, opacity .2s}
+  .btn:active{transform:scale(.97)}
+  .btn:disabled{opacity:.35;cursor:not-allowed}
+  .btn.lime{background:var(--lime);color:#041018;box-shadow:0 0 0 rgba(198,255,0,0)}
+  .btn.lime:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 8px 34px rgba(198,255,0,.35)}
+  .btn.red-o{background:transparent;border-color:rgba(255,80,99,.5);color:var(--red)}
+  .btn.red-o:hover:not(:disabled){background:rgba(255,80,99,.08);transform:translateY(-2px)}
+  .btn.ghost{background:transparent;border-color:var(--line);color:var(--muted)}
+  .btn.ghost:hover{color:var(--text)}
+
+  /* hero visual */
+  .viz{position:relative}
+  .viz-card{background:linear-gradient(160deg, rgba(14,23,36,.9), rgba(8,13,21,.9));
+    border:1px solid var(--line);border-radius:26px;padding:26px;
+    box-shadow:0 30px 80px rgba(0,0,0,.5)}
+  .viz svg{width:100%;height:auto;display:block}
+  .wire{stroke:var(--cyan);stroke-width:2;fill:none;stroke-dasharray:5 9;opacity:.75;
+    animation:dash 1.1s linear infinite}
+  .wire.l{stroke:var(--lime)}
+  @keyframes dash{to{stroke-dashoffset:-14}}
+  .fchip{position:absolute;font-family:var(--mono);font-size:10px;letter-spacing:.06em;
+    background:rgba(4,7,12,.85);border:1px solid var(--line);border-radius:999px;
+    padding:7px 13px;color:var(--muted);backdrop-filter:blur(6px);animation:float 5s ease-in-out infinite}
+  .fchip b{color:var(--lime)}
+  .fchip.c1{top:-14px;left:8%;animation-delay:.2s}
+  .fchip.c2{bottom:-14px;right:6%;animation-delay:1.4s}
+  .fchip.c3{top:38%;right:-18px;animation-delay:2.6s}
+  @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+  @keyframes rise{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+  .hero .eyebrow{animation:rise .6s .05s ease both}
+  .hero h1{animation:rise .6s .12s ease both}
+  .hero .sub{animation:rise .6s .2s ease both}
+  .hero .modelabel{animation:rise .6s .26s ease both}
+  .hero .controls{animation:rise .6s .3s ease both}
+  .hero .viz{animation:rise .7s .22s ease both}
+
+  /* ============ stats strip ============ */
+  .stats{border-top:1px solid var(--line);border-bottom:1px solid var(--line);
+    background:rgba(255,255,255,.02)}
+  .stats-in{display:grid;grid-template-columns:repeat(4,1fr);}
+  .stat{padding:26px 20px;text-align:center;border-left:1px solid var(--line)}
+  .stat:first-child{border-left:none}
+  .stat b{display:block;font-family:var(--disp);font-size:34px;color:var(--lime);letter-spacing:.02em}
+  .stat span{font-family:var(--mono);font-size:10px;letter-spacing:.18em;color:var(--dim);text-transform:uppercase}
+  @media(max-width:800px){.stats-in{grid-template-columns:repeat(2,1fr)}.stat:nth-child(3){border-left:none}}
+
+  /* ============ sections ============ */
+  section.blk{padding:112px 0 0}
+  .sec-head{margin-bottom:44px;max-width:720px}
+  h2.display{font-size:clamp(30px,3.8vw,52px);line-height:1.02;margin-bottom:14px}
+  .sec-head p{color:var(--muted);font-size:15px;line-height:1.65}
+
+  /* how it works */
+  .steps{display:grid;grid-template-columns:repeat(5,1fr);gap:14px}
+  @media(max-width:1000px){.steps{grid-template-columns:repeat(2,1fr)}
+    .stepcard:last-child{grid-column:span 2}}
+  @media(max-width:560px){.steps{grid-template-columns:1fr}.stepcard:last-child{grid-column:span 1}}
+  .stepcard{position:relative;background:var(--panel);border:1px solid var(--line);border-radius:var(--r);
+    padding:24px 20px;overflow:hidden;transition:transform .25s, border-color .25s}
+  .stepcard:hover{transform:translateY(-5px);border-color:rgba(198,255,0,.35)}
+  .stepcard .num{position:absolute;top:8px;right:14px;font-family:var(--disp);font-size:64px;
+    color:rgba(255,255,255,.05);line-height:1}
+  .stepcard svg{width:26px;height:26px;margin-bottom:16px}
+  .stepcard h3{font-size:15px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px}
+  .stepcard h3 em{font-style:normal;color:var(--lime)}
+  .stepcard p{color:var(--muted);font-size:12.5px;line-height:1.6}
+
+  /* compare */
+  .compare{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  @media(max-width:800px){.compare{grid-template-columns:1fr}}
+  .ccard{border-radius:var(--r);padding:30px 28px;border:1px solid var(--line);
+    transition:transform .25s}
+  .ccard:hover{transform:translateY(-4px)}
+  .ccard.old{background:rgba(255,80,99,.05);border-color:rgba(255,80,99,.25)}
+  .ccard.new{background:rgba(198,255,0,.06);border-color:rgba(198,255,0,.35);
+    box-shadow:0 10px 60px rgba(198,255,0,.08)}
+  .ccard .ct{font-family:var(--mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;margin-bottom:14px}
+  .ccard.old .ct{color:var(--red)} .ccard.new .ct{color:var(--lime)}
+  .ccard h3{font-family:var(--disp);font-size:26px;text-transform:uppercase;margin-bottom:12px;line-height:1.1}
+  .ccard p{color:var(--muted);font-size:13.5px;line-height:1.65}
+  .ccard p b{color:var(--text)}
+
+  /* ============ demo console ============ */
+  .console{border:1px solid var(--line);border-radius:26px;overflow:hidden;
+    background:var(--panel);box-shadow:0 40px 120px rgba(0,0,0,.55)}
+  .console-bar{display:flex;align-items:center;gap:8px;padding:14px 20px;
+    background:rgba(255,255,255,.03);border-bottom:1px solid var(--line)}
+  .console-bar i{width:11px;height:11px;border-radius:50%}
+  .console-bar i:nth-child(1){background:#ff5f57}.console-bar i:nth-child(2){background:#febc2e}.console-bar i:nth-child(3){background:#28c840}
+  .console-bar span{margin-left:10px;font-family:var(--mono);font-size:11px;color:var(--dim)}
+  .console-bar .right{margin-left:auto;font-family:var(--mono);font-size:10px;color:var(--dim)}
+  .console-grid{display:grid;grid-template-columns:240px minmax(0,1fr) 290px;min-height:560px}
+  @media(max-width:1100px){.console-grid{grid-template-columns:1fr}}
+
+  .stepper{padding:22px;border-right:1px solid var(--line)}
+  @media(max-width:1100px){.stepper{border-right:none;border-bottom:1px solid var(--line)}}
+  .stepper ol{list-style:none;display:flex;flex-direction:column;gap:16px}
+  .step{display:flex;gap:12px;align-items:flex-start;opacity:.4;transition:opacity .3s}
+  .step i{width:11px;height:11px;border-radius:50%;border:2px solid var(--dim);margin-top:4px;flex:none;transition:all .3s}
+  .step b{display:block;font-size:12px;letter-spacing:.12em;text-transform:uppercase}
+  .step span{font-family:var(--mono);font-size:10px;color:var(--muted)}
+  .step.active{opacity:1}
+  .step.active i{border-color:var(--lime);background:var(--lime);box-shadow:0 0 14px rgba(198,255,0,.6)}
+  .step.done{opacity:1}.step.done i{border-color:var(--lime);background:var(--lime)}
+  .step.fail{opacity:1}.step.fail i{border-color:var(--red);background:var(--red);box-shadow:0 0 14px rgba(255,80,99,.6)}
+  .balances{margin-top:22px;border-top:1px solid var(--line);padding-top:14px;display:flex;flex-direction:column;gap:8px}
+  .balances .row{display:flex;justify-content:space-between;font-family:var(--mono);font-size:11px;color:var(--muted)}
+  .balances .row b{color:var(--text)} .balances .row b.lime{color:var(--lime)}
+
+  .panel{padding:26px}
+  .ptitle{font-family:var(--disp);font-size:20px;text-transform:uppercase;letter-spacing:.03em;margin-bottom:14px}
+  .ptitle .num{color:var(--cyan)}
+  .templates{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:18px}
+  .tchip{font-family:var(--mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase;
+    border:1px solid var(--line);color:var(--dim);border-radius:999px;padding:5px 12px}
+  .tchip.active{border-color:rgba(198,255,0,.5);color:var(--lime);background:rgba(198,255,0,.08)}
+  .brief-text{color:var(--muted);font-size:13px;line-height:1.65;border-left:3px solid var(--cyan);
+    padding:12px 16px;background:var(--panel2);border-radius:0 10px 10px 0;margin-bottom:18px}
+  ul.criteria{list-style:none;display:flex;flex-direction:column;gap:8px;margin-bottom:18px}
+  ul.criteria li{display:grid;grid-template-columns:18px 170px 1fr;gap:10px;align-items:baseline;
+    font-size:12px;padding:9px 12px;border:1px solid var(--line);border-radius:10px;background:var(--panel2)}
+  ul.criteria li .ic{color:var(--dim);font-family:var(--mono)}
+  ul.criteria li span{font-family:var(--mono);font-size:10px;color:var(--dim)}
+  @media(max-width:640px){ul.criteria li{grid-template-columns:18px 1fr}ul.criteria li span{grid-column:2}}
+  .meta-row{display:flex;gap:8px;flex-wrap:wrap}
+  .meta-row span{font-family:var(--mono);font-size:10px;color:var(--muted);border:1px solid var(--line);
+    border-radius:8px;padding:6px 11px;text-transform:uppercase;letter-spacing:.06em}
+  .meta-row b{color:var(--lime)}
+
+  .kv{display:flex;justify-content:space-between;align-items:center;gap:10px;
+    font-family:var(--mono);font-size:12px;padding:10px 14px;border:1px solid var(--line);
+    border-radius:10px;background:var(--panel2);margin-bottom:8px}
+  .kv span{color:var(--dim);text-transform:uppercase;font-size:10px;letter-spacing:.08em}
+  .badge{font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.1em;border-radius:6px;padding:3px 9px}
+  .badge.dim{color:var(--dim);border:1px solid var(--line)}
+  .badge.lime{color:#041018;background:var(--lime)}
+  .badge.red{color:#041018;background:var(--red)}
+  .worker{margin-top:16px;display:flex;gap:12px;align-items:center;border:1px solid var(--line);
+    border-radius:14px;padding:14px;background:var(--panel2)}
+  .avatar{width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,var(--cyan),#1a6d8a);
+    display:flex;align-items:center;justify-content:center;font-weight:700;color:#041018;flex:none}
+  .worker .wname{font-weight:700;font-size:13px}
+  .worker .wmeta{font-family:var(--mono);font-size:10px;color:var(--muted)}
+  .worker .wstatus{margin-left:auto;font-family:var(--mono);font-size:10px;color:var(--cyan);text-transform:uppercase;letter-spacing:.08em}
+
+  #worklog{font-family:var(--mono);font-size:11px;color:var(--muted);display:flex;flex-direction:column;gap:6px;margin-bottom:16px}
+  #worklog div{animation:fadein .4s ease}
+  #worklog div::before{content:"› ";color:var(--cyan)}
+  @keyframes fadein{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+  #deliverables{display:flex;gap:8px;flex-wrap:wrap}
+  .deliv{font-family:var(--mono);font-size:11px;color:var(--lime);border:1px solid rgba(198,255,0,.4);
+    background:rgba(198,255,0,.07);border-radius:10px;padding:8px 13px;animation:fadein .4s ease}
+
+  .vrow{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:16px}
+  .vchip{font-family:var(--mono);font-size:10px;color:var(--cyan);border:1px solid rgba(63,212,255,.35);
+    border-radius:999px;padding:5px 11px;background:rgba(63,212,255,.06)}
+  .rrow{display:grid;grid-template-columns:minmax(110px,160px) 1fr 44px 92px;gap:10px;align-items:center;
+    padding:10px 10px;border-top:1px solid var(--line);font-size:12px;animation:fadein .35s ease}
+  .rrow .chk{font-family:var(--mono);font-size:10px;color:var(--dim)}
+  .rrow .votes{font-family:var(--mono);font-size:11px;color:var(--muted);text-align:right}
+  .rrow .verdict{text-align:center}
+  .spin{width:12px;height:12px;border:2px solid var(--cyan);border-top-color:transparent;border-radius:50%;
+    animation:sp .7s linear infinite;display:inline-block;vertical-align:middle}
+  @keyframes sp{to{transform:rotate(360deg)}}
+  .note{font-family:var(--mono);font-size:10px;color:var(--muted);grid-column:1/-1;padding-top:2px}
+  @media(max-width:720px){.rrow{grid-template-columns:1fr 44px 92px}.rrow .chk{display:none}}
+  .consensus{margin-top:14px;font-family:var(--mono);font-size:11px;color:var(--muted);
+    border:1px dashed var(--line);border-radius:10px;padding:12px 14px;line-height:1.7}
+
+  .stamp{display:inline-block;font-family:var(--disp);font-size:clamp(26px,3.4vw,42px);letter-spacing:2px;
+    padding:8px 24px;border:4px solid currentColor;border-radius:8px;transform:rotate(-4deg);
+    text-transform:uppercase;margin-bottom:18px;animation:stampin .45s cubic-bezier(.2,2,.4,1)}
+  .stamp.lime{color:var(--lime);box-shadow:0 0 40px rgba(198,255,0,.25)}
+  .stamp.red{color:var(--red);box-shadow:0 0 40px rgba(255,80,99,.25)}
+  @keyframes stampin{from{transform:rotate(-4deg) scale(2.1);opacity:0}to{transform:rotate(-4deg) scale(1);opacity:1}}
+  #settleTitle{font-size:16px;font-weight:700;text-transform:uppercase;margin-bottom:8px}
+  #settleSub{color:var(--muted);font-size:13px;line-height:1.65;max-width:640px;margin-bottom:20px}
+  #settleSub b{color:var(--text)}
+  .flow{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-family:var(--mono);font-size:11px}
+  .fnode{border:1px solid var(--line);border-radius:12px;padding:11px 16px;background:var(--panel2);text-align:center}
+  .fnode b{display:block;font-size:11px}
+  .fnode span{color:var(--dim);font-size:10px}
+  .fnode.glow{border-color:var(--lime);box-shadow:0 0 20px rgba(198,255,0,.25)}
+  .fnode.glowred{border-color:var(--red);box-shadow:0 0 20px rgba(255,80,99,.25)}
+  .farrow{color:var(--dim);font-size:16px}
+  .farrow.on{color:var(--lime);text-shadow:0 0 12px rgba(198,255,0,.7)}
+  .farrow.hold{color:var(--red)}
+
+  .logcard{padding:20px;border-left:1px solid var(--line)}
+  @media(max-width:1100px){.logcard{border-left:none;border-top:1px solid var(--line)}}
+  .logcard h3{font-family:var(--mono);font-size:10px;letter-spacing:.18em;color:var(--dim);margin-bottom:12px;text-transform:uppercase}
+  #log{font-family:var(--mono);font-size:10.5px;line-height:1.75;color:var(--muted);
+    max-height:560px;overflow-y:auto;display:flex;flex-direction:column;gap:3px}
+  #log div{animation:fadein .3s ease;word-break:break-word}
+  #log .t{color:var(--dim)} #log .ok{color:var(--lime)} #log .bad{color:var(--red)} #log .info{color:var(--cyan)}
+  #log b{color:var(--text)}
+
+  /* ============ live mode ============ */
+  .live{background:var(--panel);border:1px solid var(--line);border-radius:26px;padding:34px}
+  .live h3{font-family:var(--mono);font-size:11px;letter-spacing:.18em;color:var(--lime);text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;gap:10px}
+  .live p{color:var(--muted);font-size:13px;line-height:1.65;margin-bottom:14px;max-width:760px}
+  .live code{color:var(--cyan)}
+  #liveInput{width:100%;background:var(--panel2);border:1px solid var(--line);border-radius:12px;color:var(--text);
+    font-family:var(--mono);font-size:11px;padding:12px;resize:vertical}
+  #liveInput:focus{outline:none;border-color:rgba(198,255,0,.4)}
+  #liveAddr{background:var(--panel2);border:1px solid var(--line);border-radius:12px;color:var(--muted);
+    font-family:var(--mono);font-size:11px;padding:12px;flex:1;min-width:220px}
+  #liveAddr:focus{outline:none;border-color:rgba(198,255,0,.4)}
+  .live .rowbtn{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap;align-items:center}
+  .flinks{display:flex;gap:28px;margin-top:24px}
+  .flink{color:var(--muted);text-decoration:none;font-size:13px;font-weight:500;
+    position:relative;transition:color .2s}
+  .flink::after{content:"";position:absolute;left:0;bottom:-3px;width:0;height:2px;
+    background:var(--lime);transition:width .25s}
+  .flink:hover{color:var(--text)}
+  .flink:hover::after{width:100%}
+
+  /* ============ why genlayer ============ */
+  .whygrid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+  @media(max-width:900px){.whygrid{grid-template-columns:1fr}}
+  .wcard{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:28px 24px;
+    transition:transform .25s,border-color .25s}
+  .wcard:hover{transform:translateY(-5px);border-color:rgba(63,212,255,.4)}
+  .wcard .k{font-family:var(--mono);font-size:10px;color:var(--cyan);letter-spacing:.14em;text-transform:uppercase;margin-bottom:14px}
+  .wcard h3{font-size:17px;font-weight:700;margin-bottom:10px}
+  .wcard p{color:var(--muted);font-size:13px;line-height:1.65}
+  .wcard code{color:var(--lime);font-size:11px}
+
+  /* ============ footer ============ */
+  footer{margin-top:110px;border-top:1px solid var(--line);padding:44px 0 54px;
+    background:rgba(255,255,255,.02)}
+  .foot{display:flex;justify-content:space-between;gap:24px;flex-wrap:wrap;align-items:center}
+  .foot .fl{font-family:var(--mono);font-size:11px;color:var(--dim);line-height:1.9}
+  .foot .fl b{color:var(--muted)}
+  .foot .fr{display:flex;gap:10px;align-items:center}
+</style>
+</head>
+<body>
+
+<!-- ================= NAV ================= -->
+<nav>
+  <div class="wrap nav-in">
+    <div class="brand">
+      <svg viewBox="0 0 32 32" fill="none" aria-hidden="true">
+        <path d="M16 2l11 4v9c0 7.5-4.7 12.6-11 15C9.7 27.6 5 22.5 5 15V6l11-4z" fill="#c6ff00"/>
+        <path d="M10.5 16.2l3.6 3.8 7.4-8" stroke="#041018" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <div><b>PROOFPAY</b><span class="tag">outcome-based escrow</span></div>
+    </div>
+    <a class="nl" href="#how">How it works</a>
+    <a class="nl" href="#demo">Live demo</a>
+    <a class="nl" href="#live">On-chain</a>
+    <a class="nl" href="#why">Why GenLayer</a>
+    <button id="themeToggle" class="pill" style="cursor:pointer;border:none;font:inherit">☀ Light</button>
+    <span class="pill"><span class="dot"></span>GenLayer Testnet</span>
+    <span class="pill">client 0x7Ce3…9fA2 · <b id="walletBal">50.00</b> USDC</span>
+  </div>
+</nav>
+
+<!-- ================= HERO ================= -->
+<header class="wrap hero">
+  <div>
+    <div class="eyebrow">Escrow for the agentic economy</div>
+    <h1 class="display">Escrow proves submission.<br><span class="hl">ProofPay proves satisfaction.</span></h1>
+    <p class="sub">A client locks funds against a plain-English brief. A worker agent delivers the work.
+      GenLayer validators independently evaluate whether the outcome meets the brief —
+      payment releases only when it does. Not “proof a file was uploaded.” <b>Proof the work is good enough to pay for.</b></p>
+    <div class="modelabel">Simulated walkthrough — anyone can press, no wallet needed</div>
+    <div class="controls">
+      <button id="btnSuccess" class="btn lime">▶ Run success path</button>
+      <button id="btnFail" class="btn red-o">▶ Run failure path</button>
+      <button id="btnReset" class="btn ghost">Reset</button>
+    </div>
+  </div>
+  <div class="viz">
+    <div class="viz-card">
+      <svg viewBox="0 0 520 260" fill="none">
+        <path class="wire" d="M118 130 H 196"/>
+        <path class="wire l" d="M324 130 H 402"/>
+        <circle cx="70" cy="130" r="46" stroke="#3fd4ff" stroke-width="2" fill="rgba(63,212,255,.07)"/>
+        <text x="70" y="126" text-anchor="middle" fill="#eef5fb" font-size="13" font-family="Space Grotesk,Arial" font-weight="700">CLIENT</text>
+        <text x="70" y="146" text-anchor="middle" fill="#5c7186" font-size="9" font-family="JetBrains Mono,monospace">brief + 20 USDC</text>
+        <path d="M260 74l42 15v34c0 28-17.5 47-42 56-24.5-9-42-28-42-56V89l42-15z" fill="#c6ff00"/>
+        <path d="M240 128l13 14 27-30" stroke="#041018" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+        <text x="260" y="205" text-anchor="middle" fill="#c6ff00" font-size="11" font-family="JetBrains Mono,monospace" letter-spacing="2">ESCROW + 5 VALIDATORS</text>
+        <circle cx="450" cy="130" r="46" stroke="#c6ff00" stroke-width="2" fill="rgba(198,255,0,.06)"/>
+        <text x="450" y="126" text-anchor="middle" fill="#eef5fb" font-size="13" font-family="Space Grotesk,Arial" font-weight="700">WORKER</text>
+        <text x="450" y="146" text-anchor="middle" fill="#5c7186" font-size="9" font-family="JetBrains Mono,monospace">agent · delivers</text>
+        <text x="157" y="116" text-anchor="middle" fill="#5c7186" font-size="9" font-family="JetBrains Mono,monospace">locks funds</text>
+        <text x="363" y="116" text-anchor="middle" fill="#5c7186" font-size="9" font-family="JetBrains Mono,monospace">paid iff verified</text>
+      </svg>
+    </div>
+    <span class="fchip c1"><b>20 USDC</b> locked in escrow</span>
+    <span class="fchip c2"><b>6 criteria</b> checked on-chain</span>
+    <span class="fchip c3"><b>5 validators</b> · consensus</span>
+  </div>
+</header>
+
+<!-- ================= STATS ================= -->
+<div class="stats">
+  <div class="wrap stats-in">
+    <div class="stat"><b>5</b><span>validator consensus</span></div>
+    <div class="stat"><b>6</b><span>outcome criteria</span></div>
+    <div class="stat"><b>20</b><span>USDC escrowed</span></div>
+    <div class="stat"><b>0</b><span>trust required</span></div>
+  </div>
+</div>
+
+<!-- ================= HOW IT WORKS ================= -->
+<section class="blk" id="how">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="eyebrow">The protocol</div>
+      <h2 class="display">Five steps. <span class="hl">Zero trust.</span></h2>
+      <p>ProofPay translates a natural-language work agreement into verifiable outcome criteria,
+         then lets autonomous payment happen only when validated work satisfies the brief.</p>
+    </div>
+    <div class="steps">
+      <div class="stepcard"><span class="num">01</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="#c6ff00" stroke-width="2"><path d="M4 4h16v16H4z"/><path d="M8 9h8M8 13h8M8 17h5"/></svg>
+        <h3><em>Brief</em></h3><p>The client writes the job in plain English and sets acceptance criteria plus budget.</p></div>
+      <div class="stepcard"><span class="num">02</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="#c6ff00" stroke-width="2"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 018 0v3"/></svg>
+        <h3><em>Escrow</em></h3><p>USDC locks into an intelligent contract nobody controls — not even the client.</p></div>
+      <div class="stepcard"><span class="num">03</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="#c6ff00" stroke-width="2"><path d="M8 9l-4 3 4 3M16 9l4 3-4 3M13 5l-2 14"/></svg>
+        <h3><em>Work</em></h3><p>A worker agent builds and submits evidence: live URL, GitHub repo, report or dataset.</p></div>
+      <div class="stepcard"><span class="num">04</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="#c6ff00" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M8.5 12.5l2.5 2.5 5-5.5"/></svg>
+        <h3><em>Validation</em></h3><p>GenLayer validators open the live site and judge every criterion. Majority = consensus.</p></div>
+      <div class="stepcard"><span class="num">05</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="#c6ff00" stroke-width="2"><path d="M12 3v12M7 10l5 5 5-5"/><path d="M4 21h16"/></svg>
+        <h3><em>Settlement</em></h3><p>All pass → funds release autonomously. Any fail → revision requested, money stays locked.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= COMPARE ================= -->
+<section class="blk">
+  <div class="wrap">
+    <div class="compare">
+      <div class="ccard old">
+        <div class="ct">Old escrow</div>
+        <h3>Pays on submission</h3>
+        <p>Checks <b>“did a file arrive?”</b> An empty page, a broken form, a missing feature —
+        all get paid anyway, because the escrow can’t read, look, or judge.</p>
+      </div>
+      <div class="ccard new">
+        <div class="ct">ProofPay</div>
+        <h3>Pays on satisfaction</h3>
+        <p>Checks <b>“does the outcome meet the agreement?”</b> Validators inspect the delivered work
+        against the brief. Submission ≠ satisfaction — and now the difference is enforceable.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= DEMO CONSOLE ================= -->
+<section class="blk" id="demo">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="eyebrow">Interactive demo</div>
+      <h2 class="display">Watch a task <span class="hl">settle itself.</span></h2>
+      <p>Press <b style="color:var(--lime)">Run success path</b> or <b style="color:var(--red)">Run failure path</b> above (or reset here).
+         The same brief, two different outcomes — judged live by the validator committee.</p>
+    </div>
+
+    <div class="console">
+      <div class="console-bar">
+        <i></i><i></i><i></i>
+        <span>proofpay · task #042 · bluebird coffee</span>
+        <span class="right">simulated walkthrough</span>
+      </div>
+      <div class="console-grid">
+
+        <aside class="stepper">
+          <ol>
+            <li class="step" data-step="0"><i></i><div><b>Brief</b><span>plain-English agreement</span></div></li>
+            <li class="step" data-step="1"><i></i><div><b>Escrow</b><span>funds locked on-chain</span></div></li>
+            <li class="step" data-step="2"><i></i><div><b>Work</b><span>worker agent delivers</span></div></li>
+            <li class="step" data-step="3"><i></i><div><b>Validation</b><span>GenLayer evaluates outcome</span></div></li>
+            <li class="step" data-step="4"><i></i><div><b>Settlement</b><span>autonomous payment</span></div></li>
+          </ol>
+          <div class="balances">
+            <div class="row"><span>client wallet</span><b id="balClient">50.00 USDC</b></div>
+            <div class="row"><span>escrow contract</span><b id="balEscrow" class="lime">0.00 USDC</b></div>
+            <div class="row"><span>worker wallet</span><b id="balWorker">0.00 USDC</b></div>
+          </div>
+        </aside>
+
+        <section class="stage">
+          <div class="panel" id="panel-brief">
+            <div class="templates">
+              <span class="tchip active">Build a website</span>
+              <span class="tchip">Produce research</span>
+              <span class="tchip">Analyze data</span>
+              <span class="tchip">Campaign assets</span>
+              <span class="tchip">Custom work</span>
+            </div>
+            <h2 class="ptitle"><span class="num">TASK #042</span> · Bluebird Coffee landing page</h2>
+            <p class="brief-text">“One-page site for a specialty coffee shop in Austin. Dark theme, a menu with
+              prices, and a contact form. Must work on mobile. Ship the source to a public GitHub repository and
+              deploy it live.”</p>
+            <ul class="criteria" id="criteriaStatic"></ul>
+            <div class="meta-row">
+              <span>budget <b>20 USDC</b></span>
+              <span>deadline <b>48h</b></span>
+              <span>template <b>website</b></span>
+              <span>validators <b>5</b></span>
+            </div>
+          </div>
+
+          <div class="panel" id="panel-escrow" hidden>
+            <h2 class="ptitle"><span class="num">ESCROW</span> · intelligent contract</h2>
+            <div class="kv"><span>contract</span><b id="escrowAddr">—</b></div>
+            <div class="kv"><span>state</span><b id="escrowState" class="badge dim">EMPTY</b></div>
+            <div class="kv"><span>balance</span><b id="escrowBal">0.00 USDC</b></div>
+            <div class="worker">
+              <div class="avatar">S</div>
+              <div>
+                <div class="wname">sitecrafter.agent</div>
+                <div class="wmeta">0x8b21…c4d0 · reputation 4.9 · 212 jobs verified</div>
+              </div>
+              <div class="wstatus" id="workerStatus">idle</div>
+            </div>
+          </div>
+
+          <div class="panel" id="panel-work" hidden>
+            <h2 class="ptitle"><span class="num">WORK</span> · worker agent build log</h2>
+            <div id="worklog"></div>
+            <div id="deliverables"></div>
+          </div>
+
+          <div class="panel" id="panel-validation" hidden>
+            <h2 class="ptitle"><span class="num">VALIDATION</span> · outcome evaluation</h2>
+            <div class="vrow" id="validators"></div>
+            <div id="results"></div>
+            <p class="consensus" id="consensus" hidden></p>
+          </div>
+
+          <div class="panel" id="panel-settlement" hidden>
+            <div id="stamp" class="stamp lime">VERIFIED</div>
+            <h2 id="settleTitle"></h2>
+            <p id="settleSub"></p>
+            <div class="flow" id="flow"></div>
+            <div style="margin-top:20px">
+              <button id="btnResubmit" class="btn lime" hidden>↻ Worker resubmits fixed site (success path)</button>
+            </div>
+          </div>
+        </section>
+
+        <aside class="logcard">
+          <h3>Event log</h3>
+          <div id="log"></div>
+        </aside>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= LIVE MODE ================= -->
+<section class="blk" id="live">
+  <div class="wrap">
+    <div class="live">
+      <h3><span class="badge lime">LIVE</span> On-chain result — after you deploy</h3>
+      <p>Once the contract is on the testnet (see <code>docs/DEPLOY_GUIDE.md</code>), run
+        <code>genlayer call &lt;ADDR&gt; get_task --args 1</code> in your terminal, paste the output below,
+        and the site renders the actual on-chain verification report.</p>
+      <textarea id="liveInput" rows="4" placeholder='{"id":1,"status":"VERIFIED","amount":20,"worker":"0x…","verdicts":[{"id":"contact","pass":true,"note":"form found"}]}'></textarea>
+      <div class="rowbtn">
+        <button id="btnLive" class="btn lime">Render on-chain result</button>
+        <input id="liveAddr" placeholder="contract address (shown in the report, optional)">
+      </div>
+      <div id="liveOut"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= WHY GENLAYER ================= -->
+<section class="blk" id="why">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="eyebrow">Why GenLayer</div>
+      <h2 class="display">Only GenLayer can <span class="hl">judge the web.</span></h2>
+      <p>Deterministic chains verify transactions. They cannot open a website and decide whether it meets a
+         brief. ProofPay is GenLayer-native by construction.</p>
+    </div>
+    <div class="whygrid">
+      <div class="wcard">
+        <div class="k">Web-aware validators</div>
+        <h3>The chain reads the evidence</h3>
+        <p>Validators render the delivered site themselves with <code>gl.nondet.web.render</code> —
+           reachability, DOM, layout, sections — as canonical on-chain evidence.</p>
+      </div>
+      <div class="wcard">
+        <div class="k">LLM judgment, on-chain consensus</div>
+        <h3>Subjective → verifiable</h3>
+        <p>Each criterion is adjudicated with <code>gl.nondet.exec_prompt</code>, and the equivalence
+           principle turns five AI opinions into one consensus verdict the chain accepts.</p>
+      </div>
+      <div class="wcard">
+        <div class="k">Autonomous settlement</div>
+        <h3>No humans, no invoices</h3>
+        <p>Payment releases only when the consensus says the brief is met. Fail → revision,
+           funds locked, structured feedback returned. Trust becomes code.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= FOOTER ================= -->
+<footer>
+  <div class="wrap foot">
+    <div class="fl">
+      <b>ProofPay</b> — programmable escrow for the agentic economy.<br>
+      Built for <b>Agent Tank</b> · GenLayer hackathon · September 2026.
+    </div>
+    <div class="fr">
+      <span class="pill"><span class="dot"></span>submission ≠ satisfaction</span>
+      <span class="pill">powered by GenLayer</span>
+    </div>
+    <div class="flinks">
+      <a class="flink" id="footGithub" href="https://github.com/unborn7g" target="_blank" rel="noopener">GitHub</a>
+      <a class="flink" id="footExplorer" href="https://explorer-bradbury.genlayer.com" target="_blank" rel="noopener">Explorer</a>
+    </div>
+  </div>
+</footer>
+
+<!-- ================= JAVASCRIPT (simulation engine + live mode) ================= -->
+<script>
+"use strict";
+const $ = s => document.querySelector(s);
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const rnd = (n=4) => Array.from({length:n},()=>"0123456789abcdef"[Math.floor(Math.random()*16)]).join("");
+const addr = () => "0x" + rnd(4) + "…" + rnd(4);
+
+const CRITERIA = [
+  {id:"live",     label:"Live deployed website",  chk:"HTTP 200 + rendered DOM at submitted URL",
+    passNote:"200 OK · DOM rendered · LCP 0.8s", failNote:"200 OK · DOM rendered · LCP 0.8s"},
+  {id:"resp",     label:"Mobile responsive",      chk:"viewport meta + layout integrity at 375px",
+    passNote:"layout intact at 375/768px", failNote:"layout intact at 375/768px"},
+  {id:"menu",     label:"Menu section",           chk:"section#menu with items and prices",
+    passNote:"#menu found · 6 items w/ prices", failNote:"#menu found · 6 items w/ prices"},
+  {id:"contact",  label:"Contact form",           chk:"form with name + email + submit",
+    passNote:"form#contact · name/email/submit present", failNote:"NO <form> in DOM · footer shows phone number only"},
+  {id:"dark",     label:"Dark theme",             chk:"body background luminance below threshold",
+    passNote:"bg #0b0f14 · luminance 0.04", failNote:"bg #0b0f14 · luminance 0.04"},
+  {id:"repo",     label:"GitHub source repo",     chk:"public repo, real commits, matching deploy",
+    passNote:"public · 7 commits · matches deploy", failNote:"public · 7 commits · matches deploy"}
+];
+const VALIDATORS = ["0x31aF…2c1D","0x9Be4…77a0","0xC0de…19f3","0x5aD2…88e6","0x77b1…04cA"];
+
+const state = { running:false, runId:0, client:50, escrow:0, worker:0, t0:0 };
+
+/* ====== EDIT ME: paste your real links here (one place, everything updates) ====== */
+const CONFIG = {
+  github:   "https://github.com/unborn7g",   // your GitHub (footer link)
+  contract: "0xf668bD0594e107FdF6972295aaC54372CD689F1e",   // LIVE on GenLayer studionet ✔
+  explorer: "https://explorer-studio.genlayer.com"
+};
+function renderLinks(){
+  const g = $("#footGithub"), e = $("#footExplorer");
+  if (CONFIG.github) g.href = CONFIG.github;
+  if (CONFIG.contract) e.href = CONFIG.explorer + "/address/" + CONFIG.contract;
+}
+
+function log(msg, cls){
+  const el = document.createElement("div");
+  if (cls) el.className = cls;
+  const secs = ((Date.now() - state.t0)/1000).toFixed(1).padStart(5,"0");
+  el.innerHTML = '<span class="t">[' + secs + 's]</span> ' + msg;
+  const box = $("#log");
+  box.appendChild(el);
+  box.scrollTop = box.scrollHeight;
+}
+function setStep(i, st){
+  document.querySelectorAll(".step").forEach((el,idx)=>{
+    if (idx !== i) return;
+    el.classList.remove("active","done","fail");
+    if (st) el.classList.add(st);
+  });
+}
+function doneUpTo(i){ for (let k=0;k<i;k++) setStep(k,"done"); }
+function showPanel(name){
+  ["brief","escrow","work","validation","settlement"].forEach(p=>{
+    $("#panel-"+p).hidden = (p !== name);
+  });
+}
+function renderBalances(){
+  $("#walletBal").textContent = state.client.toFixed(2);
+  $("#balClient").textContent = state.client.toFixed(2) + " USDC";
+  $("#balEscrow").textContent = state.escrow.toFixed(2) + " USDC";
+  $("#balWorker").textContent = state.worker.toFixed(2) + " USDC";
+  $("#escrowBal").textContent = state.escrow.toFixed(2) + " USDC";
+}
+function setButtons(disabled){
+  $("#btnSuccess").disabled = disabled;
+  $("#btnFail").disabled = disabled;
+}
+
+$("#criteriaStatic").innerHTML = CRITERIA.map(c =>
+  '<li><span class="ic">○</span><b>' + c.label + '</b><span>' + c.chk + '</span></li>'
+).join("");
+
+function hardReset(){
+  state.runId++;
+  state.running = false;
+  state.client = 50; state.escrow = 0; state.worker = 0;
+  state.t0 = Date.now();
+  renderBalances();
+  document.querySelectorAll(".step").forEach(el=>el.classList.remove("active","done","fail"));
+  showPanel("brief");
+  $("#log").innerHTML = "";
+  $("#worklog").innerHTML = "";
+  $("#deliverables").innerHTML = "";
+  $("#validators").innerHTML = "";
+  $("#results").innerHTML = "";
+  $("#consensus").hidden = true;
+  $("#escrowAddr").textContent = "—";
+  const es = $("#escrowState"); es.textContent = "EMPTY"; es.className = "badge dim";
+  $("#workerStatus").textContent = "idle";
+  $("#btnResubmit").hidden = true;
+  setButtons(false);
+}
+$("#btnReset").addEventListener("click", ()=>{ hardReset(); log("demo reset","info"); });
+
+async function run(scenario){
+  if (state.running) return;
+  hardReset();
+  state.running = true;
+  const id = state.runId;
+  setButtons(true);
+  log("demo start · <b>" + scenario.toUpperCase() + " PATH</b>","info");
+  const alive = () => id === state.runId;
+
+  setStep(0,"active"); showPanel("brief");
+  log("client drafts brief: “Bluebird Coffee landing page”");
+  await sleep(900); if(!alive())return;
+  log("template <b>website</b> · 6 outcome criteria · budget 20 USDC");
+  await sleep(800); if(!alive())return;
+
+  doneUpTo(1); setStep(1,"active"); showPanel("escrow");
+  log("deploying intelligent contract…");
+  await sleep(900); if(!alive())return;
+  $("#escrowAddr").textContent = addr();
+  log("contract live at " + $("#escrowAddr").textContent,"ok");
+  await sleep(600); if(!alive())return;
+  log("locking 20 USDC in escrow…");
+  await sleep(900); if(!alive())return;
+  state.client = 30; state.escrow = 20; renderBalances();
+  const es = $("#escrowState"); es.textContent = "LOCKED"; es.className = "badge lime";
+  log("escrow locked: <b>20.00 USDC</b> · tx 0x" + rnd(8),"ok");
+  await sleep(700); if(!alive())return;
+  $("#workerStatus").textContent = "applying…";
+  log("worker applied: sitecrafter.agent (0x8b21…c4d0)");
+  await sleep(800); if(!alive())return;
+  $("#workerStatus").textContent = "working";
+  log("worker accepted task — build started","info");
+  await sleep(500); if(!alive())return;
+
+  doneUpTo(2); setStep(2,"active"); showPanel("work");
+  const lines = [
+    "scaffolding project… done",
+    "writing hero + copy… done",
+    "building #menu with 6 priced items… done",
+    scenario === "fail"
+      ? "contact form… skipped (misread brief) ⚠"
+      : "adding contact form (name / email / submit)… done",
+    "applying dark theme tokens… done",
+    "responsive pass @375px… done",
+    "git push origin main · 7 commits… done",
+    "deploying to edge… live"
+  ];
+  for (const ln of lines){
+    if(!alive())return;
+    const d = document.createElement("div");
+    d.textContent = ln;
+    if (ln.includes("⚠")) d.style.color = "var(--amber)";
+    $("#worklog").appendChild(d);
+    await sleep(430);
+  }
+  if(!alive())return;
+  $("#deliverables").innerHTML =
+    '<span class="deliv">◉ https://bluebird-coffee.agent.site</span>' +
+    '<span class="deliv"> github.com/sitecrafter/bluebird-coffee</span>';
+  log("deliverables submitted: live URL + GitHub repo","ok");
+  await sleep(800); if(!alive())return;
+
+  doneUpTo(3); setStep(3,"active"); showPanel("validation");
+  log("evidence hashed & submitted to GenLayer validator committee");
+  await sleep(600); if(!alive())return;
+  $("#validators").innerHTML = VALIDATORS.map(v => '<span class="vchip"> ' + v + '</span>').join("");
+  log("committee seated: 5 validators · leader proposes, committee votes","info");
+  await sleep(600); if(!alive())return;
+
+  for (const c of CRITERIA){
+    if(!alive())return;
+    const row = document.createElement("div");
+    row.className = "rrow";
+    row.innerHTML =
+      '<div class="lab"><b>' + c.label + '</b></div>' +
+      '<div class="chk">' + c.chk + '</div>' +
+      '<div class="votes">…</div>' +
+      '<div class="verdict"><span class="spin"></span></div>';
+    $("#results").appendChild(row);
+    await sleep(650); if(!alive())return;
+
+    const fail = scenario === "fail" && c.id === "contact";
+    const votes = c.id === "resp" ? "4/5" : "5/5";
+    row.querySelector(".votes").textContent = votes;
+    row.querySelector(".verdict").innerHTML = fail
+      ? '<span class="badge red">FAIL</span>'
+      : '<span class="badge lime">PASS</span>';
+    const note = document.createElement("div");
+    note.className = "note";
+    note.textContent = "leader: " + (fail ? c.failNote : c.passNote) +
+      (c.id === "resp" ? " · 1 dissenting vote overridden by consensus" : "");
+    row.appendChild(note);
+    log((fail ? "FAIL" : "PASS") + " · " + c.label + " · " + votes + " consensus", fail ? "bad" : "ok");
+    await sleep(420);
+  }
+  if(!alive())return;
+
+  const cons = $("#consensus");
+  cons.hidden = false;
+  cons.innerHTML = scenario === "fail"
+    ? "consensus: <b style='color:var(--red)'>5/6 criteria satisfied</b> — outcome does not meet the brief. Validators return structured feedback; escrow remains locked."
+    : "consensus: <b style='color:var(--lime)'>6/6 criteria satisfied</b> — outcome meets the brief. Settlement instruction signed by the committee.";
+  await sleep(900); if(!alive())return;
+
+  doneUpTo(4);
+  setStep(4, scenario === "fail" ? "fail" : "done");
+  showPanel("settlement");
+  const stamp = $("#stamp");
+  if (scenario === "fail"){
+    stamp.textContent = "REVISION REQUESTED";
+    stamp.className = "stamp red";
+    $("#settleTitle").textContent = "5/6 criteria met · 20 USDC remains in escrow";
+    $("#settleSub").innerHTML = "The delivered site has no contact form — the brief required one. Funds stay locked, " +
+      "structured feedback is sent to the worker agent, and the task re-enters the work phase. " +
+      "<b>This is why ProofPay exists: submission ≠ satisfaction.</b>";
+    $("#flow").innerHTML =
+      '<div class="fnode"><b>client</b><span>0x7Ce3…9fA2</span></div>' +
+      '<div class="farrow">→</div>' +
+      '<div class="fnode glowred"><b>escrow</b><span>20.00 USDC · LOCKED</span></div>' +
+      '<div class="farrow hold">✕</div>' +
+      '<div class="fnode"><b>worker</b><span>0.00 USDC · feedback received</span></div>';
+    log("REVISION REQUESTED · feedback: add contact form (name/email/submit)","bad");
+    log("escrow remains locked · funds safe","info");
+    $("#btnResubmit").hidden = false;
+  } else {
+    state.escrow = 0; state.worker = 20; renderBalances();
+    stamp.textContent = "VERIFIED";
+    stamp.className = "stamp lime";
+    $("#settleTitle").textContent = "6/6 criteria met · 20 USDC released to worker";
+    $("#settleSub").innerHTML = "GenLayer validators confirmed the delivered outcome satisfies the original brief. " +
+      "Payment released autonomously — no manual approval, no invoice, no trust required. " +
+      "<b>Proof the work is good enough to pay for.</b>";
+    $("#flow").innerHTML =
+      '<div class="fnode"><b>client</b><span>0x7Ce3…9fA2</span></div>' +
+      '<div class="farrow on">→</div>' +
+      '<div class="fnode"><b>escrow</b><span>0.00 USDC · RELEASED</span></div>' +
+      '<div class="farrow on">→</div>' +
+      '<div class="fnode glow"><b>worker</b><span>+20.00 USDC · tx 0x' + rnd(8) + '</span></div>';
+    log("VERIFIED · 20.00 USDC released to sitecrafter.agent · tx 0x" + rnd(8),"ok");
+    log("task #042 complete · demo finished","info");
+  }
+  state.running = false;
+  setButtons(false);
+}
+
+$("#btnSuccess").addEventListener("click", ()=>run("success"));
+$("#btnFail").addEventListener("click", ()=>run("fail"));
+$("#btnResubmit").addEventListener("click", ()=>run("success"));
+
+/* ---------- live mode ---------- */
+function renderLive(){
+  const out = $("#liveOut");
+  const raw = $("#liveInput").value.trim();
+  if (!raw){ out.innerHTML = '<p class="note">Paste the output of get_task first.</p>'; return; }
+  let t;
+  try { t = JSON.parse(raw); if (typeof t === "string") t = JSON.parse(t); }
+  catch(e){ out.innerHTML = '<p class="note" style="color:var(--red)">Could not parse JSON: ' + e.message + '</p>'; return; }
+  const ok = t.status === "VERIFIED";
+  const addrTxt = $("#liveAddr").value.trim();
+  let html = '<div style="margin:18px 0 14px"><span class="stamp ' + (ok ? "lime" : "red") +
+    '" style="font-size:24px;border-width:3px">' + (t.status || "UNKNOWN") + '</span></div>';
+  html += '<div class="kv"><span>task</span><b>#' + (t.id ?? "?") + " · " + (t.amount ?? "?") + " USDC</b></div>";
+  html += '<div class="kv"><span>worker</span><b>' + (t.worker || "—") + "</b></div>";
+  if (addrTxt) html += '<div class="kv"><span>contract</span><b>' + addrTxt + "</b></div>";
+  if (addrTxt && !CONFIG.contract){ CONFIG.contract = addrTxt.trim(); renderLinks(); }
+  if (t.evidence && (t.evidence.url || t.evidence.repo))
+    html += '<div class="kv"><span>evidence</span><b>' + (t.evidence.url || "") + " " + (t.evidence.repo || "") + "</b></div>";
+  if (Array.isArray(t.verdicts) && t.verdicts.length){
+    html += '<div style="margin-top:12px">' + t.verdicts.map(v =>
+      '<div class="rrow"><div class="lab"><b>' + (v.id || v.label || "") + '</b></div>' +
+      '<div class="chk">' + (v.note || "") + '</div><div class="votes"></div><div class="verdict">' +
+      (v.pass ? '<span class="badge lime">PASS</span>' : '<span class="badge red">FAIL</span>') +
+      "</div></div>").join("") + "</div>";
+  }
+  if (Array.isArray(t.feedback) && t.feedback.length)
+    html += '<p class="note" style="margin-top:12px">feedback: ' +
+      t.feedback.map(f => (f.id || "") + " — " + (f.note || "")).join("; ") + "</p>";
+  out.innerHTML = html;
+  log("live mode: rendered on-chain task #" + (t.id ?? "?") + " · " + t.status, ok ? "ok" : "bad");
+}
+$("#btnLive").addEventListener("click", renderLive);
+
+/* ---------- theme toggle ---------- */
+(function(){
+  let saved = "";
+  try { saved = localStorage.getItem("pp-theme") || ""; } catch(e){}
+  if (saved === "light") document.documentElement.dataset.theme = "light";
+  const btn = $("#themeToggle");
+  const paint = () => { btn.textContent = document.documentElement.dataset.theme === "light" ? "☾ Dark" : "☀ Light"; };
+  paint();
+  btn.addEventListener("click", () => {
+    const isLight = document.documentElement.dataset.theme === "light";
+    if (isLight) delete document.documentElement.dataset.theme;
+    else document.documentElement.dataset.theme = "light";
+    try { localStorage.setItem("pp-theme", isLight ? "" : "light"); } catch(e){}
+    paint();
+  });
+})();
+
+hardReset();
+renderLinks();
+log("ProofPay demo ready · choose a path to run","info");
+</script>
+</body>
+</html>

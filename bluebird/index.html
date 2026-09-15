@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bluebird Coffee — Specialty Coffee, Austin</title>
+<style>
+  :root{--bg:#0b0f14;--panel:#12181f;--text:#f2ede4;--muted:#9aa5b1;--acc:#e8b04b;--line:rgba(255,255,255,.08)}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--text);font-family:Georgia,'Times New Roman',serif;line-height:1.6}
+  .wrap{max-width:860px;margin:0 auto;padding:0 20px}
+  header{padding:64px 0 40px;text-align:center;border-bottom:1px solid var(--line)}
+  header h1{font-size:clamp(34px,7vw,56px);letter-spacing:.06em;color:var(--acc)}
+  header p{color:var(--muted);margin-top:10px;font-style:italic}
+  section{padding:48px 0}
+  h2{color:var(--acc);font-size:24px;letter-spacing:.12em;text-transform:uppercase;margin-bottom:22px}
+  .menu{display:grid;grid-template-columns:1fr 1fr;gap:14px 34px}
+  @media(max-width:600px){.menu{grid-template-columns:1fr}}
+  .item{display:flex;justify-content:space-between;gap:12px;border-bottom:1px dashed var(--line);padding:8px 0}
+  .item b{font-weight:600}
+  .item span{color:var(--acc);white-space:nowrap}
+  .about p{color:var(--muted)}
+  form{display:grid;gap:12px;max-width:460px}
+  label{font-size:14px;color:var(--muted)}
+  input,textarea{width:100%;background:var(--panel);border:1px solid var(--line);border-radius:8px;
+    color:var(--text);padding:12px;font:inherit}
+  input:focus,textarea:focus{outline:2px solid var(--acc)}
+  button{background:var(--acc);color:#14100a;border:none;border-radius:8px;padding:13px 22px;
+    font:inherit;font-weight:700;cursor:pointer;width:max-content}
+  button:hover{filter:brightness(1.1)}
+  footer{border-top:1px solid var(--line);padding:26px 0;text-align:center;color:var(--muted);font-size:13px}
+</style>
+</head>
+<body>
+<header class="wrap">
+  <h1>BLUEBIRD COFFEE</h1>
+  <p>Specialty coffee, roasted in small batches — Austin, TX</p>
+</header>
+
+<section class="wrap about" id="about">
+  <h2>About</h2>
+  <p>Bluebird is a neighborhood coffee shop in East Austin. We source directly from
+     family farms, roast every Tuesday, and pour slow bars all day. Dark room, warm
+     cups, good records.</p>
+</section>
+
+<section class="wrap" id="menu">
+  <h2>Menu</h2>
+  <div class="menu">
+    <div class="item"><b>Espresso</b><span>$3.50</span></div>
+    <div class="item"><b>Cortado</b><span>$4.25</span></div>
+    <div class="item"><b>Flat White</b><span>$4.75</span></div>
+    <div class="item"><b>Pour Over (single origin)</b><span>$5.50</span></div>
+    <div class="item"><b>Cold Brew</b><span>$5.00</span></div>
+    <div class="item"><b>Matcha Oat Latte</b><span>$5.75</span></div>
+    <div class="item"><b>Bluebird Pastry of the Day</b><span>$4.00</span></div>
+    <div class="item"><b>House Drip (refill free)</b><span>$3.00</span></div>
+  </div>
+</section>
+
+<section class="wrap" id="contact">
+  <h2>Contact</h2>
+  <form id="contact-form" action="#" method="post">
+    <label for="name">Name
+      <input id="name" name="name" type="text" placeholder="Your name" required>
+    </label>
+    <label for="email">Email
+      <input id="email" name="email" type="email" placeholder="you@example.com" required>
+    </label>
+    <label for="msg">Message
+      <textarea id="msg" name="message" rows="4" placeholder="Catering, wholesale, or just say hi"></textarea>
+    </label>
+    <button type="submit">Send message</button>
+  </form>
+</section>
+
+<footer>
+  <div class="wrap">1204 E Cesar Chavez St, Austin, TX · open daily 7am–5pm</div>
+</footer>
+</body>
+</html>
