@@ -345,6 +345,10 @@
   .foot .fl{font-family:var(--mono);font-size:11px;color:var(--dim);line-height:1.9}
   .foot .fl b{color:var(--muted)}
   .foot .fr{display:flex;gap:10px;align-items:center}
+  /* ---------- showcase captions ---------- */
+  .cap-wrap{position:fixed;left:50%;bottom:34px;transform:translate(-50%,14px);opacity:0;pointer-events:none;transition:opacity .35s ease,transform .35s ease;z-index:99}
+  .cap-wrap.on{opacity:1;transform:translate(-50%,0)}
+  .cap{background:rgba(8,12,16,.93);border:1px solid rgba(198,255,0,.55);color:#eef5fb;font-family:"JetBrains Mono",monospace;font-size:15px;letter-spacing:.14em;padding:13px 24px;border-radius:10px;box-shadow:0 6px 30px rgba(0,0,0,.55),0 0 26px rgba(198,255,0,.14);white-space:nowrap}
 </style>
 </head>
 <body>
