@@ -582,10 +582,20 @@
 <section class="blk" id="live">
   <div class="wrap">
     <div class="live">
-      <h3><span class="badge lime">LIVE</span> On-chain result — after you deploy</h3>
-      <p>Once the contract is on the testnet (see <code>docs/DEPLOY_GUIDE.md</code>), run
-        <code>genlayer call &lt;ADDR&gt; get_task --args 1</code> in your terminal, paste the output below,
-        and the site renders the actual on-chain verification report.</p>
+      <h3><span class="badge lime">LIVE</span> On-chain result — proven on Studio Next (chain 61997)</h3>
+      <p>Contract <code>0xE4d04f3784D20206f72EAF61999aDa825153825B</code> ·
+        <a href="https://explorer-studio-dev.genlayer.com/address/0xE4d04f3784D20206f72EAF61999aDa825153825B" style="color:var(--lime)">explorer</a>.
+        Two real validator lifecycles already ran against live evidence pages:</p>
+      <p style="margin:10px 0 4px"><b style="color:var(--lime)">Task #1 — VERIFIED 6/6.</b>
+        Validators rendered the delivered site, judged every criterion against the brief,
+        consensus passed, 20 USDC released to the worker
+        (<a href="https://explorer-studio-dev.genlayer.com/tx/0x74a9637e9f5c1a46d55967b49e6846b8dfe86c52c45e248edf53b0ed8efdb130" style="color:var(--lime)">evaluate tx</a>).</p>
+      <p style="margin:8px 0 4px"><b style="color:var(--red)">Task #2 — REVISION 5/6.</b>
+        Same brief, page shipped with no contact form. Consensus failed the missing
+        criterion, funds stayed locked, structured feedback returned
+        (<a href="https://explorer-studio-dev.genlayer.com/tx/0xb8c6cf67303415f75c2ee8a46f1d717ad4f80e2b1fb67059012016330b7139bb" style="color:var(--red)">evaluate tx</a>).</p>
+      <p style="margin-top:12px">Verify any result yourself: paste the output of
+        <code>get_task</code> below and the site renders the on-chain verification report.</p>
       <textarea id="liveInput" rows="4" placeholder='{"id":1,"status":"VERIFIED","amount":20,"worker":"0x…","verdicts":[{"id":"contact","pass":true,"note":"form found"}]}'></textarea>
       <div class="rowbtn">
         <button id="btnLive" class="btn lime">Render on-chain result</button>

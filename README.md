@@ -71,10 +71,17 @@ feedback returned.
 
 ## On-chain status (live)
 
-- **Network:** GenLayer studionet (fee-less — judges can reproduce without a faucet)
-- **Contract:** `0xf668bD0594e107FdF6972295aaC54372CD689F1e`
-- **Deploy tx:** `0x963b0a3ee703363601f5787454de85d7e95948bcbdfc4dbd2667e337f09ac79c`
-- **Lifecycle executed via CLI:** `create_task` → `accept_task` → `submit_evidence`
-  (live URL `https://unborn7g.github.io/Proofpay/bluebird/` + repo) → `evaluate`.
-  Every transaction reached consensus **ACCEPTED**.
+- **Network:** GenLayer Studio Next / studio-dev, chain **61997** (GenVM v0.6 runner)
+- **Contract:** `0xE4d04f3784D20206f72EAF61999aDa825153825B`
+- **Explorer:** https://explorer-studio-dev.genlayer.com/address/0xE4d04f3784D20206f72EAF61999aDa825153825B
+- **Deploy tx:** `0x7d53ef0f9752e493a4263d8d1d43c4d3e0c295bc1892e623e8c9a8dbb43823bd` (FINALIZED · SUCCESS)
+- **Success path — Task #1 VERIFIED 6/6:** `create_task` → `accept_task` →
+  `submit_evidence` (live URL + repo) → `evaluate`. Validators fetched the live page,
+  passed all 6 criteria with written notes, and escrow released 20 USDC to the worker
+  (`balance_of(worker) = 20`). Evaluate tx `0x74a9637e9f5c1a46d55967b49e6846b8dfe86c52c45e248edf53b0ed8efdb130`.
+- **Failure path — Task #2 REVISION 5/6:** same brief, evidence page without a contact
+  form. Validators failed the missing criterion ("no form element present anywhere"),
+  funds stayed locked, structured feedback stored on-chain.
+  Evaluate tx `0xb8c6cf67303415f75c2ee8a46f1d717ad4f80e2b1fb67059012016330b7139bb`.
+- **All 9 transactions:** FINALIZED · GenVM SUCCESS · consensus Accepted.
 - **Live demo:** https://unborn7g.github.io/Proofpay/
