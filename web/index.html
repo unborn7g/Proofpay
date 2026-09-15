@@ -349,6 +349,87 @@
   .cap-wrap{position:fixed;left:50%;bottom:34px;transform:translate(-50%,14px);opacity:0;pointer-events:none;transition:opacity .35s ease,transform .35s ease;z-index:99}
   .cap-wrap.on{opacity:1;transform:translate(-50%,0)}
   .cap{background:rgba(8,12,16,.93);border:1px solid rgba(198,255,0,.55);color:#eef5fb;font-family:"JetBrains Mono",monospace;font-size:15px;letter-spacing:.14em;padding:13px 24px;border-radius:10px;box-shadow:0 6px 30px rgba(0,0,0,.55),0 0 26px rgba(198,255,0,.14);white-space:nowrap}
+
+  /* ============ mobile responsiveness + polish ============ */
+  :focus-visible{outline:2px solid var(--lime);outline-offset:2px;border-radius:6px}
+  section.blk,header.hero{scroll-margin-top:78px}
+  #log::-webkit-scrollbar{width:6px}
+  #log::-webkit-scrollbar-thumb{background:var(--line);border-radius:3px}
+
+  /* burger menu */
+  #navBurger{display:none;background:transparent;border:1px solid var(--line);border-radius:10px;
+    color:var(--text);width:40px;height:40px;font-size:17px;cursor:pointer;
+    align-items:center;justify-content:center;flex:none;transition:border-color .2s}
+  #navBurger:hover{border-color:rgba(198,255,0,.4)}
+  @media(max-width:900px){
+    #navBurger{display:flex}
+    .nav-in{flex-wrap:wrap;height:auto;min-height:64px;padding:12px 0;gap:12px;row-gap:0}
+    nav a.nl{display:none}
+    nav.open a.nl{display:block;width:100%;padding:13px 4px;border-top:1px solid var(--line);
+      font-size:15px;order:9}
+    nav.open a.nl::after{display:none}
+    nav.open{box-shadow:0 24px 60px rgba(0,0,0,.45)}
+  }
+  @media(max-width:560px){
+    .pill.bal{display:none}
+    .brand .tag{display:none}
+    .nav-in{gap:8px}
+  }
+
+  /* captions wrap on small screens instead of overflowing */
+  @media(max-width:640px){
+    .cap-wrap{bottom:16px;max-width:calc(100vw - 28px)}
+    .cap{white-space:normal;text-align:center;font-size:11px;letter-spacing:.09em;
+      padding:10px 16px;max-width:calc(100vw - 28px);line-height:1.5}
+  }
+
+  /* hero on phones */
+  @media(max-width:980px){.hero{gap:38px}.fchip.c3{right:6px}}
+  @media(max-width:560px){
+    .hero{padding:40px 0 36px}
+    h1.display{font-size:clamp(29px,9vw,40px)}
+    .hero p.sub{font-size:14.5px}
+    .fchip.c3{display:none}
+    .fchip{font-size:9px;padding:6px 10px}
+    .viz-card{padding:18px;border-radius:20px}
+    .btn{padding:13px 17px;font-size:11px}
+    .eyebrow{margin-bottom:16px}
+  }
+
+  /* tighter rhythm on phones */
+  @media(max-width:700px){
+    .wrap{padding:0 18px}
+    section.blk{padding:72px 0 0}
+    .sec-head{margin-bottom:30px}
+    .live{padding:22px 18px;border-radius:20px}
+    .console{border-radius:20px}
+    .ccard{padding:24px 20px}
+    .panel{padding:18px}
+    .stepper{padding:16px}
+    .logcard{padding:16px}
+    #log{max-height:300px}
+    footer{margin-top:80px}
+    .foot{flex-direction:column;align-items:flex-start}
+  }
+
+  /* stepper becomes compact chip-row under the console breakpoint */
+  @media(max-width:1100px){
+    .stepper ol{flex-direction:row;flex-wrap:wrap;gap:10px}
+    .step{flex:1 1 30%;min-width:104px;gap:9px}
+    .step span{display:none}
+  }
+  @media(max-width:560px){
+    .step{flex:1 1 45%}
+    .stat b{font-size:26px}
+    .stat{padding:18px 10px}
+    .fnode{padding:9px 12px}
+    .stamp{border-width:3px;padding:6px 16px}
+    .ptitle{font-size:17px}
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+  }
 </style>
 </head>
 <body>
@@ -369,7 +450,8 @@
     <a class="nl" href="#why">Why GenLayer</a>
     <button id="themeToggle" class="pill" style="cursor:pointer;border:none;font:inherit">☀ Light</button>
     <span class="pill"><span class="dot"></span>GenLayer Testnet</span>
-    <span class="pill">client 0x7Ce3…9fA2 · <b id="walletBal">50.00</b> USDC</span>
+    <span class="pill bal">client 0x7Ce3…9fA2 · <b id="walletBal">50.00</b> USDC</span>
+    <button id="navBurger" aria-label="Menu">☰</button>
   </div>
 </nav>
 
@@ -994,6 +1076,18 @@ $("#btnLive").addEventListener("click", renderLive);
     try { localStorage.setItem("pp-theme", isLight ? "" : "light"); } catch(e){}
     paint();
   });
+})();
+
+/* ---------- mobile menu ---------- */
+(function(){
+  const nav = document.querySelector("nav");
+  const burger = $("#navBurger");
+  burger.addEventListener("click", () => {
+    const open = nav.classList.toggle("open");
+    burger.textContent = open ? "✕" : "☰";
+  });
+  document.querySelectorAll("nav a.nl").forEach(a =>
+    a.addEventListener("click", () => { nav.classList.remove("open"); burger.textContent = "☰"; }));
 })();
 
 hardReset();
