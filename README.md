@@ -68,3 +68,13 @@ feedback returned.
   regions to limit prompt injection.
 - Consensus compares only decision + per-criterion pass/fail, so validator
   reasoning may differ without breaking agreement.
+
+## On-chain status (live)
+
+- **Network:** GenLayer studionet (fee-less — judges can reproduce without a faucet)
+- **Contract:** `0xf668bD0594e107FdF6972295aaC54372CD689F1e`
+- **Deploy tx:** `0x963b0a3ee703363601f5787454de85d7e95948bcbdfc4dbd2667e337f09ac79c`
+- **Lifecycle executed via CLI:** `create_task` → `accept_task` → `submit_evidence`
+  (live URL `https://unborn7g.github.io/Proofpay/bluebird/` + repo) → `evaluate`.
+  Every transaction reached consensus **ACCEPTED**.
+- **Live demo:** https://unborn7g.github.io/Proofpay/
